@@ -7,7 +7,9 @@ namespace backend.Models
 	public class Table
 	{
 		public long Id { get; set; }
+		
 		public int Capacity { get; set; }
+
 		[JsonIgnore]
 		public ICollection<Reservation> Reservations { get; set; }
 

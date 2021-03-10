@@ -45,7 +45,6 @@ namespace backend.Controllers
 
         // POST: api/Reservations
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        // TODO: validate data from incoming reservation
         [HttpPost]
         public async Task<ActionResult<Reservation>> CreateReservation(Reservation reservation)
         {
