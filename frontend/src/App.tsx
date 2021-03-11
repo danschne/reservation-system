@@ -1,18 +1,19 @@
 import React, { BaseSyntheticEvent, useState } from 'react';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function App() {
 
   const today = extractDateISOString(new Date());
-  const oneYearFromToday = getDateOneYearFromToday();
+  const oneYearFromToday = getDateISOStringOneYearFromToday();
 
   const [name, setName] = useState("");
   const [date, setDate] = useState(today);
   const [numberOfPersons, setNumberOfPersons] = useState(1);
+  const [reservationWasSuccessful, setReservationWasSuccessful] = useState<boolean | null>(null);
   
   function adjustName(e: BaseSyntheticEvent): void {
-    setName(e.currentTarget.value);
+    setName(e.currentTarget.value.trimStart());
   }
 
   function adjustDate(e: BaseSyntheticEvent): void {
@@ -23,15 +24,31 @@ function App() {
     setNumberOfPersons(e.currentTarget.value as number);
   }
 
-  function makeReservation(e: BaseSyntheticEvent): void {
+  async function makeReservation(e: BaseSyntheticEvent): Promise<void> {
     e.preventDefault();
     e.stopPropagation();
 
-    // make request to backend and show result
+    const response = await fetch("https://localhost:5001/api/Reservations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        "name": name.trimEnd(),
+        "date": date,
+        "numberOfPersons": numberOfPersons,
+      }),
+    });
+
+    if (response.status === 201) {
+      setReservationWasSuccessful(true);
+    } else if (response.status === 204) {
+      setReservationWasSuccessful(false);
+    }
   }
   
   return (
-    <Container>
+    <Container className="mt-3">
       <Row>
         <Col lg={{ offset: 3, span: 6 }}>
           <Row>
@@ -69,6 +86,18 @@ function App() {
               </Form>
             </Col>
           </Row>
+          {
+            reservationWasSuccessful !== null &&
+            <Row className="mt-3">
+              <Col>
+                {
+                  reservationWasSuccessful ?
+                  <Alert variant="success">Vielen Dank für Ihre Reservierung.</Alert> :
+                  <Alert variant="danger">Für diese Daten ist leider kein Tisch mehr verfügbar.</Alert>
+                }
+              </Col>
+            </Row>
+          }
         </Col>
       </Row>
     </Container>
@@ -76,7 +105,7 @@ function App() {
 
 }
 
-function getDateOneYearFromToday(): string {
+function getDateISOStringOneYearFromToday(): string {
   const date = new Date();
   
   date.setFullYear(date.getFullYear() + 1);
