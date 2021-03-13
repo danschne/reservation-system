@@ -1,6 +1,7 @@
-import React, { BaseSyntheticEvent, Dispatch, useState } from 'react';
+import React, { BaseSyntheticEvent, Dispatch, useContext, useEffect, useState } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { extractDateISOString, getDateISOStringOneYearFromToday } from '../../helpers/helpers';
+import { ThemeContext } from '../App/App';
 
 type ReservationFormProps = {
   setReservationWasSuccessful: Dispatch<React.SetStateAction<boolean | null>>,
@@ -11,10 +12,13 @@ function ReservationForm({ setReservationWasSuccessful }: ReservationFormProps) 
 
   const today = extractDateISOString(new Date());
   const oneYearFromToday = getDateISOStringOneYearFromToday();
-
+  const theme = useContext(ThemeContext);
   const [name, setName] = useState("");
   const [date, setDate] = useState(today);
   const [numberOfPersons, setNumberOfPersons] = useState(1);
+
+  // Remove and style dark mode differently.
+  useEffect(() => console.log(theme), [theme]);
 
   function adjustName(e: BaseSyntheticEvent): void {
     setName(e.currentTarget.value.trimStart());
@@ -74,7 +78,7 @@ function ReservationForm({ setReservationWasSuccessful }: ReservationFormProps) 
                         value={numberOfPersons} onChange={adjustNumberOfPersons} />
         </Col>
       </Form.Group>
-      <Button type="submit" block>Reservieren</Button>
+      <Button type="submit" block variant={theme}>Reservieren</Button>
     </Form>
   );
 
